@@ -89,6 +89,7 @@ autoUpdater.on('update-available', (info) => {
   //else if (process.platform === "linux") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
   //else if (process.platform === "darwin") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
 
+  sendStatusToWindow(`Removing: ${pendingPath}...`);
   fs.remove(pendingPath, err => {
     if (err) return console.error(err)
     sendStatusToWindow('Successfully removed pending folder for new update!');
