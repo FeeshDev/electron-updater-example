@@ -65,6 +65,7 @@ function createDefaultWindow() {
     win = null;
   });
   win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
+  win.openDevTools();
   return win;
 }
 autoUpdater.on('checking-for-update', () => {
