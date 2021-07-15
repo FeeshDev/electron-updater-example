@@ -4,6 +4,8 @@
 const { app, BrowserWindow, Menu, protocol, ipcMain } = require('electron');
 const log = require('electron-log');
 const { autoUpdater } = require("electron-updater");
+const fs = require("fs-extra");
+const path = require("path");
 
 //-------------------------------------------------------------------
 // Logging
@@ -66,6 +68,13 @@ function createDefaultWindow() {
   });
   win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
   win.openDevTools();
+
+  let test = path.resolve(process.env.LOCALAPPDATA, `${process.env.npm_package_name}-updater/pending`);
+  fs.remove(test, err => {
+    if (err) return console.error(err)
+    console.log('success!')
+  });
+
   return win;
 }
 autoUpdater.on('checking-for-update', () => {
@@ -73,11 +82,20 @@ autoUpdater.on('checking-for-update', () => {
 })
 autoUpdater.on('update-available', (info) => {
   sendStatusToWindow('Update available.');
-  win.webContents.send('console', info);
+  var pendingPath = "";
+
+  if (process.platform === "win32") pendingPath = path.resolve(process.env.LOCALAPPDATA, `${process.env.npm_package_name}-updater/pending`);
+  else pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
+  //else if (process.platform === "linux") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
+  //else if (process.platform === "darwin") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
+
+  fs.remove(pendingPath, err => {
+    if (err) return console.error(err)
+    sendStatusToWindow('Successfully removed pending folder for new update!');
+  });
 })
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
-  win.webContents.send('console', info);
 })
 autoUpdater.on('error', (err) => {
   sendStatusToWindow('Error in auto-updater. ' + err);
@@ -90,7 +108,6 @@ autoUpdater.on('download-progress', (progressObj) => {
 })
 autoUpdater.on('update-downloaded', (info) => {
   sendStatusToWindow('Update downloaded');
-  autoUpdater.quitAndInstall();
 });
 app.on('ready', function () {
   // Create the Menu
@@ -114,7 +131,7 @@ app.on('window-all-closed', () => {
 // app quits.
 //-------------------------------------------------------------------
 app.on('ready', function () {
-  autoUpdater.checkForUpdates();
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
 //-------------------------------------------------------------------
