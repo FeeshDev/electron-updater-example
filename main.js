@@ -73,11 +73,8 @@ function createDefaultWindow() {
 
   return win;
 }
-autoUpdater.on('checking-for-update', () => {
+autoUpdater.on('checking-for-update', async () => {
   sendStatusToWindow('Checking for update...');
-})
-autoUpdater.on('update-available', async (info) => {
-  sendStatusToWindow('Update available.');
   var pendingPath = "";
 
   if (process.platform === "win32") pendingPath = path.resolve(process.env.LOCALAPPDATA, `${packageName}-updater/pending`);
@@ -92,6 +89,9 @@ autoUpdater.on('update-available', async (info) => {
   } catch (err) {
     console.error(err)
   }
+})
+autoUpdater.on('update-available', (info) => {
+  sendStatusToWindow('Update available.');
 })
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
