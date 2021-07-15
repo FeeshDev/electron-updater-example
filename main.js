@@ -4,10 +4,10 @@
 const { app, BrowserWindow, Menu, protocol, ipcMain } = require('electron');
 const log = require('electron-log');
 const { autoUpdater } = require("electron-updater");
-const fs = require("fs-extra");
+const fs = require("fs-extra"); //! neeeded for fs.remove
 const path = require("path");
 
-const packageName = process.env.npm_package_name || "electron-updater-example";
+const packageName = process.env.npm_package_name || "electron-updater-example";  //! Name needed for finding localappdata folder
 
 //-------------------------------------------------------------------
 // Logging
@@ -75,17 +75,17 @@ function createDefaultWindow() {
 }
 autoUpdater.on('checking-for-update', async () => {
   sendStatusToWindow('Checking for update...');
-  var pendingPath = "";
+  var pendingPath = ""; //* Original path
 
-  if (process.platform === "win32") pendingPath = path.resolve(process.env.LOCALAPPDATA, `${packageName}-updater/pending`);
-  else pendingPath = path.resolve(process.env.HOME, `${packageName}-updater/pending`);
-  //else if (process.platform === "linux") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
-  //else if (process.platform === "darwin") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
+  if (process.platform === "win32") pendingPath = path.resolve(process.env.LOCALAPPDATA, `${packageName}-updater/pending`); //* Windows
+  else pendingPath = path.resolve(process.env.HOME, `${packageName}-updater/pending`); //* Any other platform
+  //else if (process.platform === "linux") pendingPath = path.resolve(process.env.HOME, `${packageName}-updater/pending`);  //* may need to use this
+  //else if (process.platform === "darwin") pendingPath = path.resolve(process.env.HOME, `${packageName}-updater/pending`); //* may need to use this
 
-  sendStatusToWindow(`Removing: '${pendingPath}'...`);
+  sendStatusToWindow(`Removing: '${pendingPath}'...`); //* Notfify client
   try {
-    await fs.remove(pendingPath)
-    sendStatusToWindow('Successfully removed pending folder for new update!');
+    await fs.remove(pendingPath) //! Await removal
+    sendStatusToWindow('Successfully removed pending folder for new update!'); //* Notify removal
   } catch (err) {
     console.error(err)
   }
