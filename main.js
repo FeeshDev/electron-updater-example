@@ -76,7 +76,7 @@ function createDefaultWindow() {
 autoUpdater.on('checking-for-update', () => {
   sendStatusToWindow('Checking for update...');
 })
-autoUpdater.on('update-available', (info) => {
+autoUpdater.on('update-available', async (info) => {
   sendStatusToWindow('Update available.');
   var pendingPath = "";
 
@@ -86,10 +86,12 @@ autoUpdater.on('update-available', (info) => {
   //else if (process.platform === "darwin") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
 
   sendStatusToWindow(`Removing: '${pendingPath}'...`);
-  fs.remove(pendingPath, err => {
-    if (err) return console.error(err)
+  try {
+    await fs.remove(pendingPath)
     sendStatusToWindow('Successfully removed pending folder for new update!');
-  });
+  } catch (err) {
+    console.error(err)
+  }
 })
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
