@@ -72,9 +72,11 @@ autoUpdater.on('checking-for-update', () => {
 })
 autoUpdater.on('update-available', (info) => {
   sendStatusToWindow('Update available.');
+  win.webContents.send('console', info);
 })
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
+  win.webContents.send('console', info);
 })
 autoUpdater.on('error', (err) => {
   sendStatusToWindow('Error in auto-updater. ' + err);
