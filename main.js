@@ -7,6 +7,8 @@ const { autoUpdater } = require("electron-updater");
 const fs = require("fs-extra");
 const path = require("path");
 
+const packageName = process.env.npm_package_name || "electron-updater-example";
+
 //-------------------------------------------------------------------
 // Logging
 //
@@ -69,12 +71,6 @@ function createDefaultWindow() {
   win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
   win.openDevTools();
 
-  let test = path.resolve(process.env.LOCALAPPDATA, `${process.env.npm_package_name}-updater/pending`);
-  fs.remove(test, err => {
-    if (err) return console.error(err)
-    console.log('success!')
-  });
-
   return win;
 }
 autoUpdater.on('checking-for-update', () => {
@@ -84,12 +80,12 @@ autoUpdater.on('update-available', (info) => {
   sendStatusToWindow('Update available.');
   var pendingPath = "";
 
-  if (process.platform === "win32") pendingPath = path.resolve(process.env.LOCALAPPDATA, `${process.env.npm_package_name}-updater/pending`);
-  else pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
+  if (process.platform === "win32") pendingPath = path.resolve(process.env.LOCALAPPDATA, `${packageName}-updater/pending`);
+  else pendingPath = path.resolve(process.env.HOME, `${packageName}-updater/pending`);
   //else if (process.platform === "linux") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
   //else if (process.platform === "darwin") pendingPath = path.resolve(process.env.HOME, `${process.env.npm_package_name}-updater/pending`);
 
-  sendStatusToWindow(`Removing: ${pendingPath}...`);
+  sendStatusToWindow(`Removing: '${pendingPath}'...`);
   fs.remove(pendingPath, err => {
     if (err) return console.error(err)
     sendStatusToWindow('Successfully removed pending folder for new update!');
